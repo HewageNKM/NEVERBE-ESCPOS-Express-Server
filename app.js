@@ -1,10 +1,4 @@
 'use strict';
-const escpos = require('escpos')
-escpos.USB = require('escpos-usb')
-const device = new escpos.USB();
-const options = {encoding: "GB18030"}
-const printer = new escpos.Printer(device, options)
-
 let bodyParser = require('body-parser')
 let app = require('express')()
 let http = require('http').Server(app)
@@ -16,12 +10,18 @@ const port = 4444;
 
 app.post('/print', async (req, res) => {
     const order = req.body;
-    console.log(order)
     if (!order || !order.items) {
         return res.status(400).json({status: 'error', message: 'Invalid order data'});
     }
 
     try {
+        const escpos = require('escpos')
+        escpos.USB = require('escpos-usb')
+        const device = new escpos.USB();
+        const options = {encoding: "GB18030"}
+        const printer = new escpos.Printer(device, options)
+
+
         device.open(function () {
             // Header section with bold
             printer
@@ -89,6 +89,12 @@ app.post('/print', async (req, res) => {
 
 app.get('/drawer', async (req, res) => {
     try {
+        const escpos = require('escpos')
+        escpos.USB = require('escpos-usb')
+        const device = new escpos.USB();
+        const options = {encoding: "GB18030"}
+        const printer = new escpos.Printer(device, options)
+
         await device.open(function () {
             printer
                 .cashdraw(2)
