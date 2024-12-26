@@ -3,6 +3,7 @@ let bodyParser = require('body-parser')
 let app = require('express')()
 let http = require('http').Server(app)
 let cors = require('cors')
+const {text} = require("express");
 app.use(cors())
 app.use(bodyParser.json())
 
@@ -23,7 +24,6 @@ app.post('/print', async (req, res) => {
 
 
         device.open(function () {
-            // Header section with bold
             printer
                 .cashdraw(2)
                 .font('a') // Use default font
@@ -42,23 +42,35 @@ app.post('/print', async (req, res) => {
                 .style('') // Revert to default style
                 .size(0.5, 0.5) // Default font size
                 .text(`Date: ${order.createdAt}`)
-                .text(`Order #: ${order.orderId}`)
+                .text(`Order #: ${order.orderId.toUpperCase()}`)
                 .text('--------------------------------'); // Separator
 
             // Print each item
             order.items.forEach((item) => {
                 printer
                     .text(`${item.name} ${item.variantName} (${item.size})`)
-                    .text(`  Qty: ${item.quantity} x Price: ${item.price} = ${item.quantity * item.price}`);
+                    .text(`  Qty: ${item.quantity} x Price: Rs.${item.price} = ${item.quantity * item.price}`);
             });
 
             // Print totals
             const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            const receivedTotal = () => {
+                if (order.paymentReceived) {
+                    console.log(order.paymentReceived)
+                    return order.paymentReceived.reduce((sum, item) => sum + item.amount, 0);
+                } else {
+                    return total;
+                }
+            }
+
             printer
                 .text('--------------------------------') // Separator
                 .align('rt') // Right align for totals
-                .text(`Subtotal: ${total}`)
-                .text(`Total: ${total}`)
+                .text(`Total: Rs.${total}`)
+                .text(`Received: Rs.${receivedTotal()}`)
+                .text('----------') // Separator
+                .text(`Change: Rs.${receivedTotal() - total}`)
                 .text('--------------------------------') // Separator
 
             // Footer
@@ -67,8 +79,34 @@ app.post('/print', async (req, res) => {
                 .text('Thank you for shopping!')
                 .text('Visit us again.')
 
+            printer.text('');
+
+            const today = new Date();
+            const month = today.getMonth() + 1; // JavaScript months are 0-based, so add 1.
+            const day = today.getDate();
+
+            if (month === 12 && day !== 31) {
+                printer
+                    .align('ct')
+                    .text('Merry Christmas!')
+            } else if(month === 12 && day === 31){
+                printer
+                    .align('ct')
+                    .text('Happy New Year!');
+
+            }else if (month === 4) {
+                printer
+                    .align('ct')
+                    .text('Happy Sinhala Tamil!')
+                    .text('New Year!');
+            } else if (month === 2 && day === 14) {
+                printer
+                    .align('ct')
+                    .text('Happy Valentine Day!');
+            }
+
             // Add a few empty lines for spacing (if required)
-            printer.text('\n');
+            printer.text('');
 
             // Print barcode
             printer
