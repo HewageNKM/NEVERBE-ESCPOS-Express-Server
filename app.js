@@ -89,12 +89,12 @@ app.post('/print', async (req, res) => {
                 printer
                     .align('ct')
                     .text('Merry Christmas!')
-            } else if(month === 12 && day === 31){
+            } else if (month === 12 && day === 31) {
                 printer
                     .align('ct')
                     .text('Happy New Year!');
 
-            }else if (month === 4) {
+            } else if (month === 4) {
                 printer
                     .align('ct')
                     .text('Happy Sinhala Tamil!')
