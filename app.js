@@ -71,7 +71,6 @@ app.post('/print', async (req, res) => {
                 .text(`Discount: -Rs.${order?.discount | 0}`)
                 .text('---------------') // Separator
                 .text(`Subtotal: Rs.${total - (order?.discount | 0)}`)
-                .text('---------------') // Separator
                 .text(`Received: Rs.${receivedTotal()}`)
                 .text('---------------') // Separator
                 .text(`Change: Rs.${receivedTotal() - (total - (order?.discount | 0))}`)
