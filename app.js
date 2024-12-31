@@ -68,8 +68,10 @@ app.post('/print', async (req, res) => {
                 .text('--------------------------------') // Separator
                 .align('rt') // Right align for totals
                 .text(`Total: Rs.${total}`)
+                .text(`Discount: -Rs.${order?.discount | 0}`)
+                .text(`Subtotal: Rs.${total - (order?.discount | 0)}`)
                 .text(`Received: Rs.${receivedTotal()}`)
-                .text('----------') // Separator
+                .text('---------------') // Separator
                 .text(`Change: Rs.${receivedTotal() - total}`)
                 .text('--------------------------------') // Separator
 
@@ -89,7 +91,7 @@ app.post('/print', async (req, res) => {
                 printer
                     .align('ct')
                     .text('Merry Christmas!')
-            } else if (month === 12 && day === 31) {
+            } else if (month === 12 && day === 31 || month === 1 && day <= 4) {
                 printer
                     .align('ct')
                     .text('Happy New Year!');
